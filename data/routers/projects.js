@@ -28,17 +28,17 @@ router.get('/', (req, res) => {
 });
 
 // GET by id
-router.get('/:projectId', (req, res) => {
-  const { id } = req.params.id
+router.get('/:id', (req, res) => {
+  const id = req.params.id;
 
-  projects.get({id})
+  projects.get(id)
     .then(data => {
       // console.log('DATA', data)
       if (data) {
         res.status(200).json(data)
       } else {
         res.status(400).json({
-          message: `The project with ${id} does not exist.`
+          message: 'The project with the specified ID does not exist.'
         })
       }
     })
@@ -73,10 +73,10 @@ router.post('/', (req, res) => {
 
 // with POST?
 // The projectModel.js helper includes an extra method called getProjectActions() that takes a project id as it's only argument and returns a list of all the actions for the project.
-router.post('/:projectId', (req, res) => {
+router.post('/:id', (req, res) => {
   // const projectId = req.params.id;
   const addAction = {
-    project_id: req.params.id,
+    project_id: req.params.project_id,
     descritption: req.body.description,
     notes: req.body.notes,
   };
@@ -92,7 +92,7 @@ router.post('/:projectId', (req, res) => {
     })
   }
 
-  projects.getProjectActions(req.params.projectId)
+  projects.getProjectActions(req.params.project_id)
     .then(data => {
       if (!data) {
         return res.status(404).json({
@@ -116,12 +116,12 @@ router.post('/:projectId', (req, res) => {
 
 // update(): accepts two arguments, the first is the id of the resource to update, and the second is an object with the changes to apply. It returns the updated resource. If a resource with the provided id is not found, the method returns null.
 // PUT req
-router.put('/:projectId', (req, res) => {
-  const { id } = req.params.id;
+router.put('/:id', (req, res) => {
+  const id = req.params.id;
 
   if (!req.body.name || !req.body.description) {
     return res.status(400).json({
-      message: `The project with ${id} does not exist.`
+      message: 'The project with the specified ID does not exist.'
     })
   }
 
@@ -144,15 +144,15 @@ router.put('/:projectId', (req, res) => {
 
 // remove(): the remove method accepts an id as it's first parameter and, upon successfully deleting the resource from the database, returns the number of records deleted.
 // DELETE req
-router.delete('/:projectId', (req, res) => {
-  const { id } = req.params.id;
-  projects.remove({ id })
+router.delete('/:id', (req, res) => {
+  const id = req.params.id;
+  projects.remove(id)
     .then(gone => {
       if (gone) {
         res.status(200).json(gone)
       } else {
         res.status(404).json({
-          message: `The project with ${id} does not exist.`
+          message: 'The project with the specified ID does not exist.'
         })
       }
     })
