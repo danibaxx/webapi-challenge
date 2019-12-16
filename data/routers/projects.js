@@ -4,7 +4,7 @@ const actionsRouter = require('./actions');
 
 const router = express.Router();
 
-router.use('/:id/actions', actionsRouter);
+router.use('/:projectId/actions', actionsRouter);
 
 // Projects Schema
 // id: number no need to provide it when creating projects, the database will generate it
@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
 });
 
 // GET by id
-router.get('/:id', (req, res) => {
+router.get('/:projectId', (req, res) => {
   const { id } = req.params.id
 
   projects.get({id})
@@ -64,7 +64,7 @@ router.post('/', (req, res) => {
         res.status(201).json(data)
       })
       .catch(error => {
-        res.status(500),json({
+        res.status(500).json({
           error: 'There was an error while saving the project to the database, try again.'
         })
       })
@@ -116,7 +116,7 @@ router.post('/:projectId', (req, res) => {
 
 // update(): accepts two arguments, the first is the id of the resource to update, and the second is an object with the changes to apply. It returns the updated resource. If a resource with the provided id is not found, the method returns null.
 // PUT req
-router.put('/:id', (req, res) => {
+router.put('/:projectId', (req, res) => {
   const { id } = req.params.id;
 
   if (!req.body.name || !req.body.description) {
@@ -140,12 +140,11 @@ router.put('/:id', (req, res) => {
         error: 'The project information could not be modified.'
       })
     })
-
-})
+});
 
 // remove(): the remove method accepts an id as it's first parameter and, upon successfully deleting the resource from the database, returns the number of records deleted.
 // DELETE req
-router.delete('/:id', (req, res) => {
+router.delete('/:projectId', (req, res) => {
   const { id } = req.params.id;
   projects.remove({ id })
     .then(gone => {

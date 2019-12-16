@@ -27,7 +27,7 @@ router.get('/', (req, res) => {
 });
 
 // GET req with id
-router.get('/actions/:id', (req, res) => {
+router.get('/:id', (req, res) => {
   const { id } = req.params.id;
 
   actions.get({id})
@@ -49,7 +49,75 @@ router.get('/actions/:id', (req, res) => {
 
 // insert(): calling insert passing it a resource object will add it to the database and return the newly created resource.
 // POST req
-router.post('/')
+router.post('/', (req, res) => {
+  const action = req.body;
+
+  if(!action.description || !action.notes) {
+    return res.status(400).json({
+      errorMessage: 'Please provide description and notes for the action'
+    })
+  } else {
+    actions.insert(action)
+      .then(data => {
+        res.status(201).json(data)
+      })
+      .catch(error => {
+        res.status(500).json({
+          error: 'There was an error while saving the action to the database.'
+        })
+      })
+  }
+});
+
+// update(): accepts two arguments, the first is the id of the resource to update, and the second is an object with the changes to apply. It returns the updated resource. If a resource with the provided id is not found, the method returns null.
+// PUT req
+router.put('/:id', (req, res) => {
+  const { id } = req.params.id;
+
+  if (!req.body.description || !req.body.notes) {
+    return res.status(400).json({
+      message: `The action with ${id} does not exist.`
+    })
+  }
+
+  actions.update(id, req.body)
+    .then(data => {
+      if (data) {
+        res.status(200).json(data)
+      } else {
+        return res.status(404).json({
+          errorMessage: 'Please provide description and notes for the action.'
+        })
+      }
+    })
+    .catch(error => {
+      res.status(500).json({
+        error: 'The action information could not be modified.'
+      })
+    })
+});
+
+// remove(): the remove method accepts an id as it's first parameter and, upon successfully deleting the resource from the database, returns the number of records deleted.
+// DELETE req
+router.delete('/:id', (req, res) => {
+  const { id } = req.params.id;
+  actions.remove({ id })
+    .then(gone => {
+      if (gone) {
+        res.status(200).json(gone)
+      } else {
+        res.status(404).json({
+          message: `The action with ${id} does not exist.`
+        })
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).json({
+        message: 'The action could not be removed.'
+      })
+    })
+});
 
 
 module.exports = router;
