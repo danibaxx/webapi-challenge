@@ -13,11 +13,15 @@ I need this code, just don't know where, perhaps should make some middleware, do
 Go code!
 */
 const express = require('express');
-
+const welcomeRouter = require('./data/routers/welcome');
+const projectRouter = require('./data/routers/projects');
 
 const server = express();
 
 server.use(express.json());
+
+server.use('/', welcomeRouter);
+server.use('/api/projects', projectRouter);
 
 server.listen(8080, () => {
   console.log('\n*** Server is running http://localhost:8080 ***\n')
