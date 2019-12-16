@@ -1,7 +1,10 @@
 const express = require('express');
 const projects = require('../helpers/projectModel');
+const actionsRouter = require('./actions');
 
 const router = express.Router();
+
+router.use('/:id/actions', actionsRouter);
 
 // Projects Schema
 // id: number no need to provide it when creating projects, the database will generate it
@@ -19,7 +22,7 @@ router.get('/', (req, res) => {
     .catch(error => {
       console.log(error)
       res.status(500).json({
-        message: 'Error retrieving the projects'
+        message: 'Error retrieving the projects.'
       })
     })
 });
@@ -27,9 +30,10 @@ router.get('/', (req, res) => {
 // GET by id
 router.get('/:id', (req, res) => {
   const { id } = req.params.id
-  project.get({id})
+
+  projects.get({id})
     .then(data => {
-      console.log('DATA', data)
+      // console.log('DATA', data)
       if (data) {
         res.status(200).json(data)
       } else {
@@ -67,6 +71,49 @@ router.post('/', (req, res) => {
   }
 });
 
+// with POST?
+// The projectModel.js helper includes an extra method called getProjectActions() that takes a project id as it's only argument and returns a list of all the actions for the project.
+router.post('/:projectId', (req, res) => {
+  // const projectId = req.params.id;
+  const addAction = {
+    project_id: req.params.id,
+    descritption: req.body.description,
+    notes: req.body.notes,
+  };
+
+  const action = {
+    descritption: req.body.description,
+    notes: req.body.notes,
+  }
+
+  if (!action) {
+    res.status(400).json({
+      errorMessage: 'Please provide description and notes for action.'
+    })
+  }
+
+  projects.getProjectActions(req.params.projectId)
+    .then(data => {
+      if (!data) {
+        return res.status(404).json({
+          message: 'The action with this specified ID does not exist.'
+        })
+      }
+    })
+
+    projects.insert(addAction)
+      .then(action => {
+        if (action) {
+          res.status(200).json(action)
+        }
+      })
+      .catch(error => {
+        res.status(500).json({
+          error: 'There was an error while saving the action to the database.'
+        })
+      })
+});
+
 // update(): accepts two arguments, the first is the id of the resource to update, and the second is an object with the changes to apply. It returns the updated resource. If a resource with the provided id is not found, the method returns null.
 // PUT req
 router.put('/:id', (req, res) => {
@@ -79,12 +126,43 @@ router.put('/:id', (req, res) => {
   }
 
   projects.update(id, req.body)
-    .then()
-    .catch()
-    
+    .then(data => {
+      if (data) {
+        res.status(200).json(data)
+      } else {
+        return res.status(404).json({
+          errorMessage: 'Please provide name and description for the project.'
+        })
+      }
+    })
+    .catch(error => {
+      res.status(500).json({
+        error: 'The project information could not be modified.'
+      })
+    })
+
 })
 
 // remove(): the remove method accepts an id as it's first parameter and, upon successfully deleting the resource from the database, returns the number of records deleted.
-// DELTE req
+// DELETE req
+router.delete('/:id', (req, res) => {
+  const { id } = req.params.id;
+  projects.remove({ id })
+    .then(gone => {
+      if (gone) {
+        res.status(200).json(gone)
+      } else {
+        res.status(404).json({
+          message: `The project with ${id} does not exist.`
+        })
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).json({
+        message: 'The project could not be removed.'
+      })
+    })
+});
 
 module.exports = router;
