@@ -73,46 +73,46 @@ router.post('/', (req, res) => {
 
 // with POST?
 // The projectModel.js helper includes an extra method called getProjectActions() that takes a project id as it's only argument and returns a list of all the actions for the project.
-router.post('/:id', (req, res) => {
-  // const projectId = req.params.id;
-  const addAction = {
-    project_id: req.params.project_id,
-    descritption: req.body.description,
-    notes: req.body.notes,
-  };
+// router.post('/:id', (req, res) => {
+//   // const projectId = req.params.id;
+//   const addAction = {
+//     project_id: req.params.project_id,
+//     descritption: req.body.description,
+//     notes: req.body.notes,
+//   };
 
-  const action = {
-    descritption: req.body.description,
-    notes: req.body.notes,
-  }
+//   const action = {
+//     descritption: req.body.description,
+//     notes: req.body.notes,
+//   }
 
-  if (!action) {
-    res.status(400).json({
-      errorMessage: 'Please provide description and notes for action.'
-    })
-  }
+//   if (!action) {
+//     res.status(400).json({
+//       errorMessage: 'Please provide description and notes for action.'
+//     })
+//   }
 
-  projects.getProjectActions(req.params.project_id)
-    .then(data => {
-      if (!data) {
-        return res.status(404).json({
-          message: 'The action with this specified ID does not exist.'
-        })
-      }
-    })
+//   projects.getProjectActions(req.params.project_id)
+//     .then(data => {
+//       if (!data) {
+//         return res.status(404).json({
+//           message: 'The action with this specified ID does not exist.'
+//         })
+//       }
+//     })
 
-    projects.insert(addAction)
-      .then(action => {
-        if (action) {
-          res.status(200).json(action)
-        }
-      })
-      .catch(error => {
-        res.status(500).json({
-          error: 'There was an error while saving the action to the database.'
-        })
-      })
-});
+//     projects.insert(addAction)
+//       .then(action => {
+//         if (action) {
+//           res.status(200).json(action)
+//         }
+//       })
+//       .catch(error => {
+//         res.status(500).json({
+//           error: 'There was an error while saving the action to the database.'
+//         })
+//       })
+// });
 
 // update(): accepts two arguments, the first is the id of the resource to update, and the second is an object with the changes to apply. It returns the updated resource. If a resource with the provided id is not found, the method returns null.
 // PUT req

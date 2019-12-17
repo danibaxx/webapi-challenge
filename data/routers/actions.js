@@ -52,18 +52,13 @@ router.get('/:id', (req, res) => {
 // POST req
 router.post('/', (req, res) => {
   const action = req.body;
-  const newAction = {
-    description: action.description,
-    notes: action.notes,
-    project_id: req.params.project_id,
-  };
 
   if(!action.description || !action.notes) {
     return res.status(400).json({
       errorMessage: 'Please provide description and notes for the action'
     })
   } else {
-    actions.insert(newAction)
+    actions.insert(action)
       .then(data => {
         res.status(201).json(data)
       })
@@ -73,6 +68,47 @@ router.post('/', (req, res) => {
         })
       })
   }
+});
+
+router.post('/:id', (req, res) => {
+  // const projectId = req.params.id;
+  const addAction = {
+    project_id: req.params.project_id,
+    descritption: req.body.description,
+    notes: req.body.notes,
+  };
+
+  const action = {
+    descritption: req.body.description,
+    notes: req.body.notes,
+  }
+
+  if (!action) {
+    res.status(400).json({
+      errorMessage: 'Please provide description and notes for action.'
+    })
+  }
+
+  projects.getProjectActions(req.params.project_id)
+    .then(data => {
+      if (!data) {
+        return res.status(404).json({
+          message: 'The action with this specified ID does not exist.'
+        })
+      }
+    })
+
+    projects.insert(addAction)
+      .then(action => {
+        if (action) {
+          res.status(200).json(action)
+        }
+      })
+      .catch(error => {
+        res.status(500).json({
+          error: 'There was an error while saving the action to the database.'
+        })
+      })
 });
 
 // update(): accepts two arguments, the first is the id of the resource to update, and the second is an object with the changes to apply. It returns the updated resource. If a resource with the provided id is not found, the method returns null.
